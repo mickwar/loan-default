@@ -1,5 +1,6 @@
 library(randomForest)
 
+# Function for doing one-hot encoding
 one_hot = function(df, col_label){
     z = unlist(df[col_label])
     n = NROW(df)
