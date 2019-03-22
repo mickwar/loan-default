@@ -148,8 +148,8 @@ x$issue_year = issue_year
 x = x[,-which(names(x) == "issue_d")]
 
 ### Output processed data for later usage
-#write.table(x, "full_x.csv", sep = ",", quote = FALSE, row.names = FALSE)
-#write.table(y, "full_y.csv", sep = ",", quote = FALSE, row.names = FALSE)
+write.table(x, "full_x.csv", sep = ",", quote = FALSE, row.names = FALSE)
+write.table(y, "full_y.csv", sep = ",", quote = FALSE, row.names = FALSE)
 
 
 # ### Factor variables
