@@ -1,4 +1,4 @@
-## Credit score analysis
+# Credit score analysis
 
 Downloaded data set, converted from \*.xlsx to \*.csv.
 Removed last four lines (two were blank, two were some kind of summary).
@@ -6,11 +6,11 @@ Removed last four lines (two were blank, two were some kind of summary).
 The raw data file is found at [`LoanStats3a.csv`](LoanStats3a.csv).
 
 
-### Data processing
+## Data processing
 
 Code for this section is found within [`preproc.R`](preproc.R).
 
-#### Column removal
+### Column removal
 
 We start by removing some obviously useless columns.
 Any column that is made up of nearly 99% of a single value (or missing) won't be of any use.
@@ -19,7 +19,7 @@ On the other hand, any column that is made up of many unique, categorical values
 We also remove any variables that wouldn't be avaiable at the time of issuing a loan, such payments on that.
 The goal is get the training data to look like the available data at the time of making the decision regarding a loan.
 
-#### Clean up and transformations
+### Clean up and transformations
 
 We clean the data by removing certain characters from numerical values, such %.
 
@@ -34,7 +34,7 @@ Importantly, categorical variables which had a mix of low frequency and high fre
 Low frequency classes were combined into an other category.
 This allows us to use as much information as we can from the data without having any troubles fitting a model (i.e. due to some singularity).
 
-#### Remaining variables
+### Remaining variables
 
 After processing, the variables we kept were:
 
@@ -50,7 +50,7 @@ revol_util                 | pub_rec_bankruptcies     | mths_since_last_delinq_i
 mths_since_last_record_ind | pub_rec_bankruptcies_ind | issue_month
 issue_year                 |                          | 
 
-#### Response variable
+### Response variable
 
 The response variable was chosen from the `loan_status` column.
 If the value in that column contained the phrase "Does not meet the credit policy", we threw out that row, regardless of whether the loan was fully paid or charged off.
@@ -59,7 +59,7 @@ We set 0 to mean Charged Off and 1 to mean Fully Paid, so low scores would indic
 The processed data files are found at [`full_x.csv`](full_x.csv) and [`full_y.csv`](full_y.csv).
 
 
-### Variable importance
+## Variable importance
 
 Code is found at [`rf.R`](rf.R).
 
@@ -89,7 +89,7 @@ emp_length_10+ years       | 93
 
 We'll keep the variables having importance measure greater than 100.
 
-### Logistic model
+## Logistic model
 
 Code is found at [`logistic.R`](logistic.R).
 
@@ -119,7 +119,7 @@ Note that these coefficients are based on the untransformed output (described ne
 So they should be interpreted in terms of probability (as opposed to the "credit score") in the context of logistic regression.
 For example, for every increase in `earliest_cr_line`, which is in years, we can expect an increase in log-odds by `0.00663`.
 
-#### Score card
+### Score card
 
 We compute a "credit score" by multiplying the predicted values by 998 and adding 1.
 This gives us values between 1 and 999.
