@@ -94,22 +94,41 @@ We'll keep the variables having importance measure greater than 100.
 Code is found at [`logistic.R`](logistic.R).
 
 We fit a logistic model using the importance variables we kept from the random forest.
+As before, we fit the model to 80% of the data to make sure we aren't doing some terrible overfitting. (Given more time, we might consider doing a *k*-fold cross-validation, but for our purposes now, an 80/20 split for train/test should suffice.)
+
 Below is a summary of the coefficients from the model.
 
 Coefficients | Estimate | Std. Error | z value | Pr(>z) | How significant?
 --- | --- | --- | --- | --- | ---
-(Intercept)                | -1.580e+02 |  4.184e+01 |  -3.777 | 0.000159 | ***
-int_rate                   | -1.198e-01 |  6.441e-03 | -18.592 |  < 2e-16 | ***
-revol_util                 | -3.008e-03 |  7.636e-04 |  -3.939 | 8.18e-05 | ***
-annual_inc                 |  6.539e-06 |  5.939e-07 |  11.009 |  < 2e-16 | ***
+(Intercept)                | -1.580e+02 |  4.184e+01 |  -3.777 | 0.000159 | \*\*\*
+int_rate                   | -1.198e-01 |  6.441e-03 | -18.592 |  < 2e-16 | \*\*\*
+revol_util                 | -3.008e-03 |  7.636e-04 |  -3.939 | 8.18e-05 | \*\*\*
+annual_inc                 |  6.539e-06 |  5.939e-07 |  11.009 |  < 2e-16 | \*\*\*
 revol_bal                  | -1.756e-06 |  1.416e-06 |  -1.240 | 0.214871 |
 dti                        | -1.529e-03 |  2.909e-03 |  -0.526 | 0.599177 |
 loan_amnt                  |  7.308e-07 |  2.710e-06 |   0.270 | 0.787422 |
-earliest_cr_line           |  6.630e-03 |  2.736e-03 |   2.423 | 0.015389 | *
+earliest_cr_line           |  6.630e-03 |  2.736e-03 |   2.423 | 0.015389 | \*
 open_acc                   |  4.639e-03 |  4.282e-03 |   1.083 | 0.278641 |
 mths_since_last_delinq     | -5.792e-04 |  1.249e-03 |  -0.464 | 0.642763 |
 mths_since_last_delinq_ind | -7.871e-02 |  5.940e-02 |  -1.325 | 0.185102 |
-inq_last_6mths             | -1.560e-01 |  1.493e-02 | -10.446 |  < 2e-16 | ***
-issue_year                 |  7.371e-02 |  2.080e-02 |   3.544 | 0.000394 | ***
-term                       | -4.781e-01 |  4.291e-02 | -11.143 |  < 2e-16 | ***
+inq_last_6mths             | -1.560e-01 |  1.493e-02 | -10.446 |  < 2e-16 | \*\*\*
+issue_year                 |  7.371e-02 |  2.080e-02 |   3.544 | 0.000394 | \*\*\*
+term                       | -4.781e-01 |  4.291e-02 | -11.143 |  < 2e-16 | \*\*\*
 
+Note that these coefficients are based on the untransformed output (described next).
+So they should be interpreted in terms of probability (as opposed to the "credit score") in the context of logistic regression.
+For example, for every increase in `earliest_cr_line`, which is in years, we can expect an increase in log-odds by `0.00663`.
+
+#### Score card
+
+We compute a "credit score" by multiplying the predicted values by 998 and adding 1.
+This gives us values between 1 and 999.
+Again, a low value indicates high chance of default, and a high value means lower chance of default.
+
+We bin the scores (from the test set data) based on the the quintiles, so each bin is roughly the same size.
+
+Status      | [1, 802] | (802, 857] | (857, 894] | (894, 927] | (927, 999]
+--- | --- | --- | --- | --- | ---
+n           | 1592  | 1614  | 1595  | 1584  | 1552
+Charged Off | 0.266 | 0.190 | 0.126 | 0.080 | 0.048
+Fully Paid  | 0.733 | 0.809 | 0.873 | 0.919 | 0.951
