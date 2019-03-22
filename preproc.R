@@ -64,45 +64,93 @@ x = x[,-which(names(x) %in% c("emp_title", "title", "desc",
 ### Remove columns we wouldn't have in a pre-loan setting
 x = x[,-grep("total", names(x))]
 x = x[,-which(names(x) %in% c("recoveries", "collection_recovery_fee",
-    "last_pymnt_d", "last_pymnt_amnt", "funded_amnt", "funded_amnt_inv"))]
+    "last_pymnt_d", "last_pymnt_amnt", "funded_amnt", "funded_amnt_inv",
+    "installment"))]
 
 # Removing the "funded" columns, since I figure the amount that is actually
 # funded wouldn't be known when deciding whether to approve a loan.
+# "installment" is removed since it is highly correlated with "loan_amnt".
+# (see plot(x$installment, x$loan_amnt))
 
-dim(x)  # 39786 x 23
+dim(x)  # 39786 x 22
 
 
 ### General clean up 
 # Remove the "%"
 x$int_rate = as.numeric(unlist(strsplit(as.character(x$int_rate), "%")))
-
-# Make employment length useful
-table(x$emp_length)
+x$revol_util[x$revol_util == ""] = "0%" # Set empty utilization to zero
+x$revol_util = as.numeric(unlist(strsplit(as.character(x$revol_util), "%")))
 
 # Will need to combine the lower frequency classes into an "Other" category.
 # We want to have a minimum count in each class that is workable, a bare
 # minimum might be something like 2%-5%, otherwise we won't get great estimates
 # for our model coefficients.
 
-# Zip codes might pose a problem since there are so many different classes,
+# Zip codes might pose a problem since there are so many different classes, so
+# going to remove (if we had more data, we could probably keep).
 # States should be fine
-sort(as.numeric(table(x$zip_code)))
-sort(as.numeric(table(x$addr_state)))
+x = x[,-which(names(x) == "zip_code")]
+
+state = as.character(x$addr_state)
+tmp = table(state)
+state[state %in% names(tmp[tmp < nrow(x) * 0.02])] = "Other"
+x$addr_state = state
+
+# Do the same for "purpose", put low frequency classes in the already
+# existing "other" category
+purpose = as.character(x$purpose)
+tmp = table(purpose)
+purpose[purpose %in% names(tmp[tmp < nrow(x) * 0.02])] = "other"
+x$purpose = purpose
 
 # Keep month of issued date, may be able to pick up some cyclical pattern
 issue_month = unlist(lapply(strsplit(as.character(x$issue_d), "-"), tail, 1))
 issue_year = unlist(lapply(strsplit(as.character(x$issue_d), "-"), head, 1))
+issue_year = as.numeric(issue_year) + 2000
+
+# Earliest credit line is weird: looks like if before 2001, then the format
+# is MMM-YY, if 2001 or later then the format is Y-MMM. So we just need to
+# find the position of "-". Only going to take the year.
+pos = unlist(lapply(gregexpr("-", x$earliest_cr_line), head, 1))
+ecl = as.character(x$earliest_cr_line)
+ecl[pos == 2] = as.numeric(substr(ecl[pos == 2], 1, 1)) + 2000
+ecl[pos == 4] = as.numeric(substr(ecl[pos == 4], 5, 6)) + 1900
+ecl[ecl == "1900"] = "2000"
+ecl = as.numeric(ecl)
+x$earliest_cr_line = ecl
+
+# Set NA to -1, use later for encoding an indicator variable. The NA could mean
+# there has never been a deliquency, so it would be inappropriate to set this
+# value to zero, which could mean there was a recent deliquency.
+x$mths_since_last_delinq[is.na(x$mths_since_last_delinq)] = -1
+x$mths_since_last_record[is.na(x$mths_since_last_record)] = -1
 
 
-
-### One-hot encode categorical variables
+### Factor variables
 # Might not need to one-hot encode some these if doing the logistic regression
 # in R which easily handles factors
-x$term
-x$installment
-x$home_ownership
+table(x$term)
+table(x$home_ownership) # Remove NONE and OTHER rows (about 100)
 table(x$verification_status)
 issue_month
 issue_year
+table(x$emp_length)
+table(x$addr_state)
 table(x$purpose)
+
+### Continuous
+hist(x$loan_amnt)
+hist(x$int_rate)
+hist(log(x$annual_inc)) # Strictly positive, so we could safely do log
+plot(table(x$delinq_2yrs))
+hist(x$revol_bal)
+hist(x$revol_util)
+hist(x$dti)
+plot(table(x$earliest_cr_line))
+plot(table(x$inq_last_6mths))
+plot(table(x$mths_since_last_delinq))
+plot(table(x$mths_since_last_record))
+plot(table(x$open_acc))
+plot(table(x$pub_rec))
+plot(table(x$pub_rec_bankruptcies))
 
