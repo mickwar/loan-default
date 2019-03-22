@@ -71,21 +71,21 @@ The top 15 most importance variables were found to be:
 
 Variable | Importance
 --- | ---
-int_rate                   | 784.177319580578
-revol_util                 | 708.09586210842 
-annual_inc                 | 698.521824361002
-revol_bal                  | 675.005735742592
-dti                        | 674.661313230924
-loan_amnt                  | 587.852285415713
-earliest_cr_line           | 520.100301127575
-open_acc                   | 479.049138513662
-mths_since_last_delinq     | 299.194272493596
-inq_last_6mths             | 240.910916799728
-issue_year                 | 173.448891593523
-term                       | 159.749508702452
-addr_state_Other           | 98.0965410181687
-purpose_debt_consolidation | 95.4723875279358
-emp_length_10+ years       | 93.3308049637641
+int_rate                   | 784
+revol_util                 | 708
+annual_inc                 | 698
+revol_bal                  | 675
+dti                        | 674
+loan_amnt                  | 587
+earliest_cr_line           | 520
+open_acc                   | 479
+mths_since_last_delinq     | 299
+inq_last_6mths             | 240
+issue_year                 | 173
+term                       | 159
+addr_state_Other           | 98
+purpose_debt_consolidation | 95
+emp_length_10+ years       | 93
 
 We'll keep the variables having importance measure greater than 100.
 
