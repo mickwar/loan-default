@@ -1,28 +1,7 @@
-# Function for doing one-hot encoding
-one_hot = function(df, col_label){
-    z = unlist(df[col_label])
-    n = NROW(df)
-    var_labels = sort(unique(z))
-    mat = matrix(0, n, length(var_labels))
-    for (j in 1:length(var_labels))
-        mat[z %in% var_labels[j], j] = 1
-    colnames(mat) = paste0(col_label, '_', var_labels)
-    df = cbind(df[,!(names(df) %in% col_label)], mat)
-    return (df)
-    }
-
+# Read in data
 raw = read.csv("full_x.csv")
 x = raw
 y = as.factor(read.csv("full_y.csv")[,1])
-
-# Do one-hot encoding for factor variables
-x = one_hot(x, "emp_length")
-x = one_hot(x, "home_ownership")
-x = one_hot(x, "verification_status")
-x = one_hot(x, "purpose")
-x = one_hot(x, "addr_state")
-x = one_hot(x, "issue_month")
-x = as.matrix(x)
 
 keep_ind = c(grep("int_rate", colnames(x)),
     grep("revol_util", colnames(x)),
@@ -38,6 +17,7 @@ keep_ind = c(grep("int_rate", colnames(x)),
     grep("term", colnames(x)))
 
 x = x[,keep_ind]
+x = as.matrix(x)
 
 # Fit a logistic regression on training data (randomly split at 80%)
 set.seed(1)
