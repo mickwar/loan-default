@@ -5,8 +5,9 @@ x = raw_dat     # so we can start over in the same session if necessary
 dim(x)  # 42538 x 144
 
 
-### Remove rows with missing loan_status (removes 3 rows)
+### Remove rows with missing loan_status or bad class (removes about 100 rows)
 x = x[-which(x$loan_status == ""),]
+x = x[-which(x$home_ownership %in% c("NONE", "OTHER")),]
 
 
 ### Get the response variable
@@ -125,10 +126,6 @@ x$earliest_cr_line = ecl
 x$mths_since_last_delinq[is.na(x$mths_since_last_delinq)] = -1
 x$mths_since_last_record[is.na(x$mths_since_last_record)] = -1
 
-# Remove some rows (about 100)
-ind = which(x$home_ownership %in% c("NONE", "OTHER"))
-x = x[-ind,]
-y = y[-ind]
 
 dim(x)      # 39685 x 21
 length(y)   # 39685
@@ -145,10 +142,14 @@ x$pub_rec_bankruptcies[is.na(x$pub_rec_bankruptcies)] = 0
 
 x$term = ifelse(x$term == " 36 months", 0, 1)   # 0 for 36, 1 for 60
 
+x$issue_month = issue_month
+x$issue_year = issue_year
+
+x = x[,-which(names(x) == "issue_d")]
 
 ### Output processed data for later usage
-write.table(x, "full_x.csv", sep = ",", quote = FALSE, row.names = FALSE)
-write.table(y, "full_y.csv", sep = ",", quote = FALSE, row.names = FALSE)
+#write.table(x, "full_x.csv", sep = ",", quote = FALSE, row.names = FALSE)
+#write.table(y, "full_y.csv", sep = ",", quote = FALSE, row.names = FALSE)
 
 
 # ### Factor variables
