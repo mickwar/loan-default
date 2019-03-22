@@ -140,7 +140,11 @@ x$mths_since_last_record_ind = ifelse(x$mths_since_last_record == -1, 1, 0)
 x$mths_since_last_delinq[x$mths_since_last_delinq == -1] = 0
 x$mths_since_last_record[x$mths_since_last_record == -1] = 0
 
+x$pub_rec_bankruptcies_ind = ifelse(is.na(x$pub_rec_bankruptcies), 1, 0)
+x$pub_rec_bankruptcies[is.na(x$pub_rec_bankruptcies)] = 0
+
 x$term = ifelse(x$term == " 36 months", 0, 1)   # 0 for 36, 1 for 60
+
 
 ### Output processed data for later usage
 write.table(x, "full_x.csv", sep = ",", quote = FALSE, row.names = FALSE)
