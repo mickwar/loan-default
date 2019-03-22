@@ -125,32 +125,52 @@ x$earliest_cr_line = ecl
 x$mths_since_last_delinq[is.na(x$mths_since_last_delinq)] = -1
 x$mths_since_last_record[is.na(x$mths_since_last_record)] = -1
 
+# Remove some rows (about 100)
+ind = which(x$home_ownership %in% c("NONE", "OTHER"))
+x = x[-ind,]
+y = y[-ind]
 
-### Factor variables
-# Might not need to one-hot encode some these if doing the logistic regression
-# in R which easily handles factors
-table(x$term)
-table(x$home_ownership) # Remove NONE and OTHER rows (about 100)
-table(x$verification_status)
-issue_month
-issue_year
-table(x$emp_length)
-table(x$addr_state)
-table(x$purpose)
+dim(x)      # 39685 x 21
+length(y)   # 39685
 
-### Continuous
-hist(x$loan_amnt)
-hist(x$int_rate)
-hist(log(x$annual_inc)) # Strictly positive, so we could safely do log
-plot(table(x$delinq_2yrs))
-hist(x$revol_bal)
-hist(x$revol_util)
-hist(x$dti)
-plot(table(x$earliest_cr_line))
-plot(table(x$inq_last_6mths))
-plot(table(x$mths_since_last_delinq))
-plot(table(x$mths_since_last_record))
-plot(table(x$open_acc))
-plot(table(x$pub_rec))
-plot(table(x$pub_rec_bankruptcies))
+
+### Make indicator variables
+x$mths_since_last_delinq_ind = ifelse(x$mths_since_last_delinq == -1, 1, 0)
+x$mths_since_last_record_ind = ifelse(x$mths_since_last_record == -1, 1, 0)
+x$mths_since_last_delinq[x$mths_since_last_delinq == -1] = 0
+x$mths_since_last_record[x$mths_since_last_record == -1] = 0
+
+x$term = ifelse(x$term == " 36 months", 0, 1)   # 0 for 36, 1 for 60
+
+### Output processed data for later usage
+write.table(x, "full_data.csv", sep = ",", quote = FALSE, row.names = FALSE)
+
+
+# ### Factor variables
+# # Might not need to one-hot encode some these if doing the logistic regression
+# # in R which easily handles factors
+# #table(x$term)
+# table(x$home_ownership)
+# table(x$verification_status)
+# table(issue_month)
+# table(issue_year)
+# table(x$emp_length)
+# table(x$addr_state)
+# table(x$purpose)
+# 
+# ### Continuous
+# hist(x$loan_amnt)
+# hist(x$int_rate)
+# hist(log(x$annual_inc)) # Strictly positive, so we could safely do log
+# plot(table(x$delinq_2yrs))
+# hist(x$revol_bal)
+# hist(x$revol_util)
+# hist(x$dti)
+# plot(table(x$earliest_cr_line))
+# plot(table(x$inq_last_6mths))
+# #plot(table(x$mths_since_last_delinq))
+# #plot(table(x$mths_since_last_record))
+# plot(table(x$open_acc))
+# plot(table(x$pub_rec))
+# plot(table(x$pub_rec_bankruptcies))
 
