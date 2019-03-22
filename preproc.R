@@ -143,7 +143,8 @@ x$mths_since_last_record[x$mths_since_last_record == -1] = 0
 x$term = ifelse(x$term == " 36 months", 0, 1)   # 0 for 36, 1 for 60
 
 ### Output processed data for later usage
-write.table(x, "full_data.csv", sep = ",", quote = FALSE, row.names = FALSE)
+write.table(x, "full_x.csv", sep = ",", quote = FALSE, row.names = FALSE)
+write.table(y, "full_y.csv", sep = ",", quote = FALSE, row.names = FALSE)
 
 
 # ### Factor variables
